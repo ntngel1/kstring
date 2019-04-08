@@ -65,7 +65,8 @@ void kstring_uppercase(kstring_t* instance)
         if (instance->data[i] >= 97 && instance->data[i] <= 122)
         {
             printf("%c\n", instance->data[i]);
-            instance->data[i] = 32;
+            instance->data[i] = instance->data[i] +  32;
+            printf("%c\n", instance->data[i]);
         }
     }
 }
