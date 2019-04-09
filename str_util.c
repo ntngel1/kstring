@@ -1,3 +1,6 @@
+#include <stdbool.h>
+#include <stdint.h>
+
 size_t string_length(const char* string)
 {
     size_t length = 0;
@@ -9,3 +12,5 @@ size_t string_length(const char* string)
 
     return length;
 }
+
+

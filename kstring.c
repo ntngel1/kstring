@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include "str_util.c"
 
@@ -44,11 +45,8 @@ void kstring_copy(const kstring_t* source, kstring_t* destination)
 {
     if (destination->length < source->length)
     {
-        printf("Memory allocation (source length = %d, destination length = %d)\n", source->length, destination->length);
-        printf("Old destination address: %p\n", *destination);
         kstring_free(destination);
         destination = kstring_create(source->length);
-        printf("New destination address: %p\n", *destination);
     }
     
     destination->how_much = source->length;
@@ -96,19 +94,54 @@ void kstring_lowercase(kstring_t* instance)
     }
 }
 
+size_t kstring_length(const kstring_t* instance)
+{
+   return instance->length; 
+}
 
+bool kstring_compare(const kstring_t* left, const kstring_t* right)
+{
+    if (left->length != right->length)
+    {
+        return false;
+    }
+
+    for (size_t i = 0; i < left->length; ++i)
+    {
+        if (left->data[i] != right->data[i])
+        {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+size_t kstring_indexOf(const kstring_t* instance, char character)
+{
+    for (size_t i = 0; i < instance->length; ++i)
+    {
+        if (instance->data[i] == character)
+        {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+size_t kstring_indexOf(const kstring_t* instance, const char* string)
+{
+    
+}
 
 
 int main(int argc, const char** argv)
 {
-    kstring_t* left = kstring_dup("lowercase UPPERCASE SomEtHing 123456 !\n");
-    kstring_print(left); 
-    kstring_t* right = kstring_create(38);
-    kstring_copy(left, right);
-    kstring_print(right);
-    
-    
-    
+    kstring_t* string = kstring_dup("Hello, world");
+    kstring_t* string2 = kstring_dup("Hello, world1");
+    printf("%d", kstring_compare(string, string2));
+
     return 0;
 }
 
