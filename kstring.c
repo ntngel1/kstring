@@ -15,6 +15,7 @@ kstring_t* kstring_create(size_t length)
 {
     kstring_t* instance = malloc(sizeof(kstring_t));
     instance->length = length;
+    instance->how_much = 0;
     instance->data = malloc(sizeof(uint8_t) * length);
     return instance;
 }
@@ -41,17 +42,18 @@ char* kstring_cstr(const kstring_t* instance)
     return str;
 }
 
-void kstring_copy(const kstring_t* source, kstring_t* destination)
+void kstring_copy(const kstring_t* source, kstring_t** destination)
 {
-    if (destination->length < source->length)
+    kstring_t* dest = *destination;
+    if (dest->length < source->length)
     {
-        kstring_free(destination);
-        destination = kstring_create(source->length);
+        kstring_free(dest);
+        dest = kstring_create(source->length);
     }
     
-    destination->how_much = source->length;
+    dest->how_much = source->length;
     
-    memcpy(destination->data, source->data, source->length);
+    memcpy(dest->data, source->data, source->length);
 }
 
 void kstring_print(const kstring_t* instance)
@@ -130,18 +132,43 @@ size_t kstring_indexOf(const kstring_t* instance, char character)
     return -1;
 }
 
-size_t kstring_indexOf(const kstring_t* instance, const char* string)
+kstring_t* kstring_slice(const kstring_t* source, size_t begin, size_t end)
 {
-    
+    if (begin > source->length || end > source->length)
+    {
+        return NULL;
+    }
+
+    if (begin > end)
+    {
+        size_t temp = 0;
+        temp = begin;
+        begin = end;
+        end = temp;
+    }
+
+    kstring_t* destination = kstring_create(end - begin);
+    destination->how_much = destination->length;
+    memcpy(destination->data, source->data, destination->length);
+    return destination;
+}
+
+int* __kstring_horsool_build_offsets_table()
+{
+
+}
+
+size_t kstring_find(const kstring_t* instance, const char* string)
+{
+
 }
 
 
 int main(int argc, const char** argv)
 {
-    kstring_t* string = kstring_dup("Hello, world");
-    kstring_t* string2 = kstring_dup("Hello, world1");
-    printf("%d", kstring_compare(string, string2));
-
+    kstring_t* string = kstring_dup("Hello, world121234123123123");
+    kstring_t* string2 = kstring_slice(string, 0, 1);
+    kstring_print(string2);
     return 0;
 }
 
