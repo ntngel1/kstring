@@ -32,7 +32,7 @@ kstring_t* kstring_dup(const char* string) {
    return instance;
 }
 
-char* kstring_cstr(kstring_t* instance)
+char* kstring_cstr(const kstring_t* instance)
 {
     char* str = malloc(instance->length + 1);
     memcpy(str, instance->data, instance->length);
@@ -40,12 +40,28 @@ char* kstring_cstr(kstring_t* instance)
     return str;
 }
 
-void kstring_print(kstring_t* instance)
+void kstring_copy(const kstring_t* source, kstring_t* destination)
+{
+    if (destination->length < source->length)
+    {
+        printf("Memory allocation (source length = %d, destination length = %d)\n", source->length, destination->length);
+        printf("Old destination address: %p\n", *destination);
+        kstring_free(destination);
+        destination = kstring_create(source->length);
+        printf("New destination address: %p\n", *destination);
+    }
+    
+    destination->how_much = source->length;
+    
+    memcpy(destination->data, source->data, source->length);
+}
+
+void kstring_print(const kstring_t* instance)
 {
     fwrite(instance->data, sizeof(uint8_t), instance->length, stdout);
 }
 
-kstring_t* kstring_concat(kstring_t* left, kstring_t* right)
+kstring_t* kstring_concat(const kstring_t* left, const kstring_t* right)
 {
     kstring_t* instance = kstring_create(left->length + right->length);
     
@@ -62,28 +78,37 @@ void kstring_uppercase(kstring_t* instance)
 {
     for (size_t i = 0; i < instance->length; ++i)
     {
-        if (instance->data[i] >= 97 && instance->data[i] <= 122)
+        if ('a' <= instance->data[i] && instance->data[i] <= 'z')
         {
-            printf("%c\n", instance->data[i]);
-            instance->data[i] = instance->data[i] +  32;
-            printf("%c\n", instance->data[i]);
+            instance->data[i] = instance->data[i] - 'a' + 'A';
         }
     }
 }
 
+void kstring_lowercase(kstring_t* instance)
+{
+    for (size_t i = 0; i < instance->length; ++i)
+    {
+        if ('A' <= instance->data[i] && instance->data[i] <= 'Z')
+        {
+            instance->data[i] = instance->data[i] - 'A' + 'a';
+        }
+    }
+}
+
+
+
+
 int main(int argc, const char** argv)
 {
-    kstring_t* left = kstring_dup("test");
-    kstring_t* right = kstring_dup(" 2test");
-    kstring_uppercase(left);
-    kstring_print(left);
-    //kstring_t* concated = kstring_concat(left, right);
-    //kstring_print(concated);
-
-    //const char* simple = kstring_cstr(concated);
-    //fwrite(simple, sizeof(char), string_length(simple), stdout);
-
-
+    kstring_t* left = kstring_dup("lowercase UPPERCASE SomEtHing 123456 !\n");
+    kstring_print(left); 
+    kstring_t* right = kstring_create(38);
+    kstring_copy(left, right);
+    kstring_print(right);
+    
+    
+    
     return 0;
 }
 
