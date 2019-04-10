@@ -225,13 +225,42 @@ size_t kstring_find(const kstring_t* instance, const char* needle)
     return -1;
 }
 
+void kstring_trim(kstring_t* instance)
+{
+    size_t counter = 0;
+    size_t whitespaceCount = 0;
+    bool hasWhitespaces = false;
+    
+    for (size_t i = 0; i < instance->length; ++i)
+    {
+        if (instance->data[i] != ' ')
+        {
+            instance->data[counter++] = instance->data[i];
+        } else {
+            whitespaceCount++;
+            hasWhitespaces = true;
+        }
+    }
+
+    if (!hasWhitespaces)
+        return;
+
+    size_t length = instance->length - whitespaceCount;
+    instance->length = length;
+    instance->how_much = length;
+
+    char* buffer = malloc(sizeof(uint8_t) * length);
+    memcpy(buffer, instance->data, length);
+    free(instance->data);
+    instance->data = buffer;
+}
 
 int main(int argc, const char** argv)
 {
     kstring_t* hello = kstring_dup("Hello");
-    kstring_t* world = kstring_dup(" World!");
-    
-    printf("%ld\n", kstring_find(hello, ""));
+    kstring_t* world = kstring_dup(" Wo rl d! ");
+    kstring_trim(world);
+    kstring_print(world);
 
     kstring_free(hello);
     kstring_free(world);
