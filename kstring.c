@@ -141,8 +141,7 @@ kstring_t* kstring_slice(const kstring_t* source, size_t begin, size_t end)
 
     if (begin > end)
     {
-        size_t temp = 0;
-        temp = begin;
+        size_t temp = begin;
         begin = end;
         end = temp;
     }
@@ -153,14 +152,32 @@ kstring_t* kstring_slice(const kstring_t* source, size_t begin, size_t end)
     return destination;
 }
 
-int* __kstring_horsool_build_offsets_table()
+size_t* __kstring_horspool_build_offset_table(const char* string, size_t length)
 {
+    size_t* offset = malloc(sizeof(size_t) * 256);
 
+    for (size_t i = 0; i < 256; ++i)
+    {
+        offset[i] = length;
+    }
+
+    for (size_t i = 0; i < length - 1; ++i)
+    {
+        offset[string[i]] = length - i - 1;
+    }
+
+    return offset;
 }
 
-size_t kstring_find(const kstring_t* instance, const char* string)
+size_t kstring_find(const kstring_t* instance, const char* needle)
 {
+    size_t needle_length = string_length(needle);
+    size_t* offsets = __kstring_horspool_build_offset_table(needle, needle_length);
 
+    for (size_t i = 0; i < 256; ++i)
+    {
+        printf("OFFSET %c = %ld\n", i, offsets[i]);
+    }
 }
 
 
@@ -168,6 +185,8 @@ int main(int argc, const char** argv)
 {
     kstring_t* string = kstring_dup("Hello, world121234123123123");
     kstring_t* string2 = kstring_slice(string, 0, 1);
+
+    kstring_find(string, "Hello");
     kstring_print(string2);
     return 0;
 }
