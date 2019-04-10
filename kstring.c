@@ -196,7 +196,7 @@ size_t kstring_find(const kstring_t* instance, const char* needle)
     size_t needle_length = string_length(needle);
     size_t string_length = instance->length;
 
-    if (needle_length > string_length)
+    if (needle_length > string_length || needle == "")
     {
         return -1;
     }
@@ -228,10 +228,14 @@ size_t kstring_find(const kstring_t* instance, const char* needle)
 
 int main(int argc, const char** argv)
 {
-    kstring_t* hello = kstring_dup("hi bro");
-    kstring_t* world = kstring_dup(", World!");
-    uint8_t element = kstring_at(world, 9);
-    printf("%c\n", element);
+    kstring_t* hello = kstring_dup("Hello");
+    kstring_t* world = kstring_dup(" World!");
+    
+    printf("%ld\n", kstring_find(hello, ""));
+
+    kstring_free(hello);
+    kstring_free(world);
+
     return 0;
 }
 
