@@ -152,7 +152,18 @@ kstring_t* kstring_slice(const kstring_t* source, size_t begin, size_t end)
     return destination;
 }
 
-size_t* __kstring_horspool_build_offset_table(const char* string, size_t length)
+kstring_t* kstring_append(const kstring_t* left, const kstring_t* right)
+{
+    kstring_t* instance = kstring_create(left->length + right->length);
+    instance->how_much = left->length + right->length;
+
+    memcpy(instance->data, left->data, left->length);
+    memcpy(instance->data + left->length, right->data, right->length);
+
+    return instance;
+}
+
+size_t* __kstring_horspool_build_offset_table__(const char* string, size_t length)
 {
     size_t* offset = malloc(sizeof(size_t) * 256);
 
@@ -169,25 +180,58 @@ size_t* __kstring_horspool_build_offset_table(const char* string, size_t length)
     return offset;
 }
 
+uint8_t kstring_at(const kstring_t* instance, size_t position)
+{
+    if (position >= instance->length)
+    {
+        fprintf(stderr, "Error accessing element at index(%ld) in kstring(address = %p, length = %ld)\n", position, instance, instance->length);
+        return 0;
+    }
+
+    return instance->data[position];
+}
+
 size_t kstring_find(const kstring_t* instance, const char* needle)
 {
     size_t needle_length = string_length(needle);
-    size_t* offsets = __kstring_horspool_build_offset_table(needle, needle_length);
+    size_t string_length = instance->length;
 
-    for (size_t i = 0; i < 256; ++i)
+    if (needle_length > string_length)
     {
-        printf("OFFSET %c = %ld\n", i, offsets[i]);
+        return -1;
     }
+
+    size_t* offsets = __kstring_horspool_build_offset_table__(needle, needle_length);
+    const char* string = instance->data;
+
+    size_t skip = 0;
+    while (string_length - skip >= needle_length)
+    {
+        for (size_t i = needle_length - 1; i >= 0; --i)
+        {
+            if (string[skip + i] != needle[i])
+            {
+                skip += offsets[string[skip + i]];
+                break;
+            }
+
+            if (i == 0)
+            {
+                return skip + i;
+            }
+        }
+    }
+
+    return -1;
 }
 
 
 int main(int argc, const char** argv)
 {
-    kstring_t* string = kstring_dup("Hello, world121234123123123");
-    kstring_t* string2 = kstring_slice(string, 0, 1);
-
-    kstring_find(string, "Hello");
-    kstring_print(string2);
+    kstring_t* hello = kstring_dup("hi bro");
+    kstring_t* world = kstring_dup(", World!");
+    uint8_t element = kstring_at(world, 9);
+    printf("%c\n", element);
     return 0;
 }
 
